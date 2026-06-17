@@ -1291,7 +1291,7 @@ class GameScene extends Phaser.Scene {
       strokeThickness: 2,
       resolution: TEXT_RESOLUTION
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(51);
-    this.alertText = this.add.text(WIDTH - 14, 50, "", {
+    this.alertText = this.add.text(WIDTH - 14, 92, "", {
       fontFamily: "Arial",
       fontSize: "15px",
       color: "#ffb4c0",
@@ -1323,7 +1323,7 @@ class GameScene extends Phaser.Scene {
       wordWrap: { width: 500 },
       resolution: TEXT_RESOLUTION
     }).setOrigin(0.5).setScrollFactor(0).setDepth(52).setVisible(false);
-    this.optionsButton = button(this, WIDTH - 78, 64, "Options", () => this.openOptionsPanel(), 112);
+    this.optionsButton = button(this, WIDTH - 78, 62, "Options", () => this.openOptionsPanel(), 112);
     this.optionsButton.panel.setDepth(53);
     this.optionsButton.text.setDepth(54);
   }
