@@ -23,6 +23,7 @@ const CAMERA_SWEEP_RANGE = 40;
 const GUARD_NAV_PADDING = 12;
 const GUARD_WAYPOINT_REACH = 16;
 const GUARD_STUCK_RECOVER_MS = 900;
+const GUARD_TURN_RATE = 0.014;
 const NAV_GRID_SIZE = 24;
 const NAV_REPATH_MS = 220;
 
@@ -1600,20 +1601,27 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  tryGuardStep(guard, angle, speed, stepTime) {
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed;
+    if (this.guardBoxBlocked(guard, guard.x + vx * stepTime, guard.y + vy * stepTime, 2)) {
+      return false;
+    }
+    guard.setVelocity(vx, vy);
+    guard.setData("facing", angle);
+    guard.setAngle(Phaser.Math.RadToDeg(angle) + 90);
+    return true;
+  }
+
   moveGuardToward(guard, x, y, speed, delta) {
     const targetAngle = Phaser.Math.Angle.Between(guard.x, guard.y, x, y);
-    const vx = Math.cos(targetAngle) * speed;
-    const vy = Math.sin(targetAngle) * speed;
+    const currentAngle = guard.getData("facing");
+    const turnLimit = GUARD_TURN_RATE * delta;
+    const smoothAngle = Phaser.Math.Angle.RotateTo(currentAngle, targetAngle, turnLimit);
     const stepTime = Math.min(delta, 50) / 1000;
-    const stepX = guard.x + vx * stepTime;
-    const stepY = guard.y + vy * stepTime;
 
-    if (!this.guardBoxBlocked(guard, stepX, stepY, 2)) {
-      guard.setVelocity(vx, vy);
-      guard.setData("facing", targetAngle);
-      guard.setAngle(Phaser.Math.RadToDeg(targetAngle) + 90);
-      return true;
-    }
+    if (this.tryGuardStep(guard, smoothAngle, speed, stepTime)) return true;
+    if (this.tryGuardStep(guard, targetAngle, speed, stepTime)) return true;
 
     const fallbackAngles = [
       targetAngle + Math.PI / 4,
@@ -1622,14 +1630,7 @@ class GameScene extends Phaser.Scene {
       targetAngle - Math.PI / 2
     ];
     for (const angle of fallbackAngles) {
-      const safeVx = Math.cos(angle) * speed;
-      const safeVy = Math.sin(angle) * speed;
-      if (!this.guardBoxBlocked(guard, guard.x + safeVx * stepTime, guard.y + safeVy * stepTime, 2)) {
-        guard.setVelocity(safeVx, safeVy);
-        guard.setData("facing", angle);
-        guard.setAngle(Phaser.Math.RadToDeg(angle) + 90);
-        return true;
-      }
+      if (this.tryGuardStep(guard, angle, speed, stepTime)) return true;
     }
 
     guard.setVelocity(0, 0);
