@@ -8,7 +8,8 @@ const RENDER_SCALE = 1;
 const CANVAS_WIDTH = WIDTH;
 const CANVAS_HEIGHT = HEIGHT;
 const TEXT_RESOLUTION = RENDER_SCALE;
-const CCTV_SHUTDOWN_MS = 10000;
+const CCTV_SHUTDOWN_MS = 5000;
+const CCTV_HACK_COOLDOWN_MS = 10000;
 const GUARD_CATCH_FAIL_MS = 1000;
 const GUARD_SIGHT_FAIL_MS = 2000;
 const GUARD_NOTICE_RANGE = 145;
@@ -936,6 +937,7 @@ class GameScene extends Phaser.Scene {
     this.catchTimer = 0;
     this.guardSightTimer = 0;
     this.cctvShutdownUntil = 0;
+    this.cctvHackCooldownUntil = 0;
     this.chaseReason = "";
     this.startTime = 0;
     this.detectedCount = 0;
@@ -1532,6 +1534,7 @@ class GameScene extends Phaser.Scene {
 
   updateComputerLabels() {
     const cctvRemaining = Math.max(0, this.cctvShutdownUntil - this.time.now);
+    const cooldownRemaining = Math.max(0, this.cctvHackCooldownUntil - this.time.now);
     this.computers.children.iterate((computer) => {
       const label = computer.getData("label");
       if (!label) return;
@@ -1539,6 +1542,11 @@ class GameScene extends Phaser.Scene {
       if (cctvRemaining > 0) {
         label.setText(`CCTV OFF ${(cctvRemaining / 1000).toFixed(1)}s`);
         label.setColor("#ffd166");
+        return;
+      }
+      if (cooldownRemaining > 0) {
+        label.setText(`Cooldown ${(cooldownRemaining / 1000).toFixed(1)}s`);
+        label.setColor("#9fb0c7");
         return;
       }
       label.setText("CCTV");
@@ -1572,12 +1580,28 @@ class GameScene extends Phaser.Scene {
       const interactionPoint = computer.getData("interactionPoint") || computer;
       if (!found && computer.active && near(interactionPoint)) {
         const cctvRemaining = Math.max(0, this.cctvShutdownUntil - this.time.now);
+        const cooldownRemaining = Math.max(0, this.cctvHackCooldownUntil - this.time.now);
+        if (cctvRemaining > 0) {
+          found = {
+            label: `CCTV OFF ${(cctvRemaining / 1000).toFixed(1)}s`,
+            action: () => this.showPromptMessage("CCTV already offline", "#ffd166", 900)
+          };
+          return;
+        }
+        if (cooldownRemaining > 0) {
+          found = {
+            label: `Cooldown ${(cooldownRemaining / 1000).toFixed(1)}s`,
+            action: () => this.showPromptMessage("CCTV hack cooling down", "#9fb0c7", 900)
+          };
+          return;
+        }
         found = {
-          label: cctvRemaining > 0 ? `CCTV OFF ${(cctvRemaining / 1000).toFixed(1)}s` : "Hack CCTV - 10s",
+          label: "Hack CCTV - 5s",
           action: () => {
             gameAudio.play("hack");
             this.objectives.hacked = true;
             this.cctvShutdownUntil = this.time.now + CCTV_SHUTDOWN_MS;
+            this.cctvHackCooldownUntil = this.time.now + CCTV_SHUTDOWN_MS + CCTV_HACK_COOLDOWN_MS;
             this.updateCctvShutdown();
             this.updateComputerLabels();
             computer.setTint(0xa7f3d0);
