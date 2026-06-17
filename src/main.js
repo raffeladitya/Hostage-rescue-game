@@ -227,8 +227,10 @@ const levels = [
     ],
     cameras: [
       { x: 230, y: 44, angle: 90, disabled: false },
-      { x: 420, y: 226, angle: 25, disabled: false },
+      { x: 420, y: 226, angle: 35, disabled: false },
       { x: 610, y: 44, angle: 120, disabled: false },
+      { x: 642, y: 350, angle: 100, disabled: false },
+      { x: 645, y: 520, angle: 180, disabled: false },
       { x: 850, y: 520, angle: 180, disabled: false },
       { x: 900, y: 70, angle: 90, disabled: false }
     ],
