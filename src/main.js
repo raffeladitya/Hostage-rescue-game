@@ -231,7 +231,8 @@ const levels = [
       { x: 610, y: 44, angle: 120, disabled: false },
       { x: 680, y: 292, angle: -35, sweepMin: -90, sweepMax: 20, disabled: false },
       { x: 916, y: 430, angle: 155, sweepMin: 100, sweepMax: 210, disabled: false },
-      { x: 916, y: 70, angle: 145, sweepMin: 110, sweepMax: 180, disabled: false }
+      { x: 916, y: 70, angle: 145, sweepMin: 110, sweepMax: 180, disabled: false },
+      { x: 632, y: 542, angle: -135, sweepMin: -165, sweepMax: -100, disabled: false }
     ],
     walls: [
       [0, 0, 960, 42],
