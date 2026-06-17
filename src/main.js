@@ -20,7 +20,9 @@ const GUARD_BODY_HEIGHT = 22;
 const MAX_SIM_DELTA_MS = 33;
 const CAMERA_SWEEP_SPEED = 44;
 const CAMERA_SWEEP_RANGE = 40;
-const GUARD_NAV_PADDING = 16;
+const GUARD_NAV_PADDING = 12;
+const GUARD_WAYPOINT_REACH = 16;
+const GUARD_STUCK_RECOVER_MS = 900;
 const NAV_GRID_SIZE = 24;
 const NAV_REPATH_MS = 220;
 
@@ -1115,6 +1117,21 @@ class GameScene extends Phaser.Scene {
     return waypoint || { x: targetX, y: targetY };
   }
 
+  getSafeGuardPoint(x, y) {
+    if (!this.isStaticGuardBoxBlocked(x, y, 2)) return { x, y };
+    const cell = this.findNearestNavigationCell(x, y, 8);
+    if (!cell) return { x, y };
+    return this.getNavigationCellCenter(cell.col, cell.row);
+  }
+
+  normalizeGuardRoute(data) {
+    const route = data.route.map((point) => {
+      const world = { x: point.x + this.playOffsetX, y: point.y + this.playOffsetY };
+      return this.getSafeGuardPoint(world.x, world.y);
+    });
+    return route.length ? route : [this.getSafeGuardPoint(data.x + this.playOffsetX, data.y + this.playOffsetY)];
+  }
+
   createProps() {
     (this.level.props || []).forEach((prop) => {
       const sprite = this.add.image(prop.x + this.playOffsetX, prop.y + this.playOffsetY, prop.type);
@@ -1219,19 +1236,20 @@ class GameScene extends Phaser.Scene {
   createGuards() {
     this.guards = this.physics.add.group();
     this.level.guards.forEach((data) => {
-      const route = data.route.map((point) => ({ x: point.x + this.playOffsetX, y: point.y + this.playOffsetY }));
-      const sprite = this.guards.create(data.x + this.playOffsetX, data.y + this.playOffsetY, "guard");
+      const route = this.normalizeGuardRoute(data);
+      const spawn = this.getSafeGuardPoint(data.x + this.playOffsetX, data.y + this.playOffsetY);
+      const sprite = this.guards.create(spawn.x, spawn.y, "guard");
       sprite.setCollideWorldBounds(true);
       sprite.setData("route", route);
       sprite.setData("target", 1);
       sprite.setData("speed", data.speed);
       sprite.setData("facing", 0);
-      sprite.setData("lastX", data.x + this.playOffsetX);
-      sprite.setData("lastY", data.y + this.playOffsetY);
+      sprite.setData("lastX", spawn.x);
+      sprite.setData("lastY", spawn.y);
       sprite.setData("stuckTime", 0);
       sprite.setData("chaseTimer", 0);
-      sprite.setData("lastSeenX", data.x + this.playOffsetX);
-      sprite.setData("lastSeenY", data.y + this.playOffsetY);
+      sprite.setData("lastSeenX", spawn.x);
+      sprite.setData("lastSeenY", spawn.y);
       sprite.setData("returnCooldown", 0);
       sprite.setData("mode", "patrol");
       sprite.setData("navPath", []);
@@ -1566,7 +1584,7 @@ class GameScene extends Phaser.Scene {
         const chaseSpeed = guard.getData("speed") + 28;
         const chaseWaypoint = this.getGuardWaypoint(guard, targetX, targetY, GUARD_NAV_PADDING);
         guard.setData("mode", "chase");
-        if (!this.moveGuardToward(guard, chaseWaypoint.x, chaseWaypoint.y, chaseSpeed, delta, 0.012)) {
+        if (!this.moveGuardToward(guard, chaseWaypoint.x, chaseWaypoint.y, chaseSpeed, delta)) {
           guard.setData("chaseTimer", Math.min(chaseTimer, 450));
           guard.setData("returnCooldown", 180);
         }
@@ -1582,35 +1600,36 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  moveGuardToward(guard, x, y, speed, delta, turnRate = 0.009) {
+  moveGuardToward(guard, x, y, speed, delta) {
     const targetAngle = Phaser.Math.Angle.Between(guard.x, guard.y, x, y);
-    const currentAngle = guard.getData("facing");
-    const turnLimit = turnRate * delta;
-    const nextAngle = Phaser.Math.Angle.RotateTo(currentAngle, targetAngle, turnLimit);
-    const vx = Math.cos(nextAngle) * speed;
-    const vy = Math.sin(nextAngle) * speed;
+    const vx = Math.cos(targetAngle) * speed;
+    const vy = Math.sin(targetAngle) * speed;
     const stepTime = Math.min(delta, 50) / 1000;
     const stepX = guard.x + vx * stepTime;
     const stepY = guard.y + vy * stepTime;
 
     if (!this.guardBoxBlocked(guard, stepX, stepY, 2)) {
       guard.setVelocity(vx, vy);
-      guard.setData("facing", nextAngle);
-      guard.setAngle(Phaser.Math.RadToDeg(nextAngle) + 90);
+      guard.setData("facing", targetAngle);
+      guard.setAngle(Phaser.Math.RadToDeg(targetAngle) + 90);
       return true;
     }
 
-    const canMoveX = Math.abs(vx) > 1 && !this.guardBoxBlocked(guard, guard.x + vx * stepTime, guard.y, 2);
-    const canMoveY = Math.abs(vy) > 1 && !this.guardBoxBlocked(guard, guard.x, guard.y + vy * stepTime, 2);
-
-    if (canMoveX || canMoveY) {
-      const safeVx = canMoveX ? vx : 0;
-      const safeVy = canMoveY ? vy : 0;
-      const safeAngle = Math.atan2(safeVy, safeVx);
-      guard.setVelocity(safeVx, safeVy);
-      guard.setData("facing", safeAngle);
-      guard.setAngle(Phaser.Math.RadToDeg(safeAngle) + 90);
-      return true;
+    const fallbackAngles = [
+      targetAngle + Math.PI / 4,
+      targetAngle - Math.PI / 4,
+      targetAngle + Math.PI / 2,
+      targetAngle - Math.PI / 2
+    ];
+    for (const angle of fallbackAngles) {
+      const safeVx = Math.cos(angle) * speed;
+      const safeVy = Math.sin(angle) * speed;
+      if (!this.guardBoxBlocked(guard, guard.x + safeVx * stepTime, guard.y + safeVy * stepTime, 2)) {
+        guard.setVelocity(safeVx, safeVy);
+        guard.setData("facing", angle);
+        guard.setAngle(Phaser.Math.RadToDeg(angle) + 90);
+        return true;
+      }
     }
 
     guard.setVelocity(0, 0);
@@ -1650,9 +1669,12 @@ class GameScene extends Phaser.Scene {
     let targetIndex = guard.getData("target");
     let target = route[targetIndex];
     let distance = Phaser.Math.Distance.Between(guard.x, guard.y, target.x, target.y);
-    if (distance < 10 && !this.guardBoxBlocked(guard, target.x, target.y, 1)) {
+    if (distance < GUARD_WAYPOINT_REACH) {
       guard.setPosition(target.x, target.y);
       guard.body.reset(target.x, target.y);
+      guard.setData("navPath", []);
+      guard.setData("navPathIndex", 0);
+      guard.setData("navTargetKey", "");
       targetIndex = (targetIndex + 1) % route.length;
       guard.setData("target", targetIndex);
     }
@@ -1672,16 +1694,14 @@ class GameScene extends Phaser.Scene {
     guard.setData("lastX", guard.x);
     guard.setData("lastY", guard.y);
     guard.setData("stuckTime", moved < 0.2 ? guard.getData("stuckTime") + delta : 0);
-    if (guard.getData("stuckTime") > 700) {
+    if (guard.getData("stuckTime") > GUARD_STUCK_RECOVER_MS) {
       const route = guard.getData("route");
       let targetIndex = guard.getData("target");
       let foundRoutePoint = false;
-      let recoveryPoint = null;
       for (let i = 0; i < route.length; i += 1) {
         targetIndex = (targetIndex + 1) % route.length;
         const candidate = route[targetIndex];
         if (!this.guardBoxBlocked(guard, candidate.x, candidate.y, 1)) {
-          recoveryPoint = this.getGuardWaypoint(guard, candidate.x, candidate.y, GUARD_NAV_PADDING);
           foundRoutePoint = true;
           break;
         }
@@ -1691,9 +1711,6 @@ class GameScene extends Phaser.Scene {
         guard.setPosition(fallback.x, fallback.y);
         guard.body.reset(fallback.x, fallback.y);
         foundRoutePoint = true;
-      } else if (recoveryPoint && !this.guardBoxBlocked(guard, recoveryPoint.x, recoveryPoint.y, 1)) {
-        guard.setPosition(recoveryPoint.x, recoveryPoint.y);
-        guard.body.reset(recoveryPoint.x, recoveryPoint.y);
       }
       if (foundRoutePoint) guard.setData("target", targetIndex);
       guard.setData("navPath", []);
