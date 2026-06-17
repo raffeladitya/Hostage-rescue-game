@@ -184,7 +184,7 @@ const levels = [
       { x: 440, y: 44, angle: 135, disabled: false },
       { x: 912, y: 220, angle: 180, disabled: false },
       { x: 650, y: 362, angle: 270, disabled: false },
-      { x: 870, y: 520, angle: 315, disabled: false }
+      { x: 910, y: 520, angle: 215, disabled: false }
     ],
     walls: [
       [0, 0, 960, 42],
