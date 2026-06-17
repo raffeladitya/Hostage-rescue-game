@@ -21,6 +21,7 @@ const MAX_SIM_DELTA_MS = 33;
 const CAMERA_SWEEP_SPEED = 44;
 const CAMERA_SWEEP_RANGE = 40;
 const CAMERA_DETECTION_START_OFFSET = 18;
+const GUARD_NAV_CELL_PADDING = 6;
 const GUARD_NAV_PADDING = 12;
 const GUARD_WAYPOINT_REACH = 16;
 const GUARD_STUCK_RECOVER_MS = 900;
@@ -177,7 +178,7 @@ const levels = [
     ],
     guards: [
       { x: 300, y: 252, route: [{ x: 190, y: 252 }, { x: 365, y: 252 }, { x: 365, y: 300 }, { x: 190, y: 300 }], speed: 78 },
-      { x: 650, y: 135, route: [{ x: 560, y: 135 }, { x: 790, y: 135 }, { x: 790, y: 210 }, { x: 560, y: 210 }], speed: 78 },
+      { x: 650, y: 135, route: [{ x: 560, y: 130 }, { x: 790, y: 130 }, { x: 790, y: 212 }, { x: 540, y: 212 }, { x: 540, y: 322 }, { x: 790, y: 322 }, { x: 790, y: 346 }, { x: 540, y: 346 }], speed: 78 },
       { x: 650, y: 462, route: [{ x: 560, y: 462 }, { x: 790, y: 462 }, { x: 790, y: 515 }, { x: 560, y: 515 }], speed: 82 },
       { x: 250, y: 475, route: [{ x: 180, y: 475 }, { x: 370, y: 475 }, { x: 370, y: 425 }, { x: 180, y: 425 }], speed: 72 }
     ],
@@ -193,9 +194,9 @@ const levels = [
       [0, 0, 42, 600],
       [918, 0, 42, 600],
       [140, 158, 300, 36],
-      [532, 242, 286, 36],
+      [552, 242, 266, 36],
       [142, 340, 250, 36],
-      [515, 370, 305, 36],
+      [552, 370, 268, 36],
       [468, 42, 36, 170],
       [468, 276, 36, 282],
       [820, 242, 36, 164]
@@ -1025,7 +1026,7 @@ class GameScene extends Phaser.Scene {
       for (let col = 0; col < cols; col += 1) {
         const x = minX + col * NAV_GRID_SIZE;
         const y = minY + row * NAV_GRID_SIZE;
-        walkable[row][col] = !this.isStaticGuardBoxBlocked(x, y, 2);
+        walkable[row][col] = !this.isStaticGuardBoxBlocked(x, y, GUARD_NAV_CELL_PADDING);
       }
     }
 
@@ -1176,7 +1177,7 @@ class GameScene extends Phaser.Scene {
   }
 
   getSafeGuardPoint(x, y) {
-    if (!this.isStaticGuardBoxBlocked(x, y, 2)) return { x, y };
+    if (!this.isStaticGuardBoxBlocked(x, y, GUARD_NAV_CELL_PADDING)) return { x, y };
     const cell = this.findNearestNavigationCell(x, y, 8);
     if (!cell) return { x, y };
     return this.getNavigationCellCenter(cell.col, cell.row);
