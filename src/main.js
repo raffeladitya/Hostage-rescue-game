@@ -20,6 +20,7 @@ const GUARD_BODY_HEIGHT = 22;
 const MAX_SIM_DELTA_MS = 33;
 const CAMERA_SWEEP_SPEED = 44;
 const CAMERA_SWEEP_RANGE = 40;
+const CAMERA_DETECTION_START_OFFSET = 18;
 const GUARD_NAV_PADDING = 12;
 const GUARD_WAYPOINT_REACH = 16;
 const GUARD_STUCK_RECOVER_MS = 900;
@@ -223,11 +224,13 @@ const levels = [
       { x: 744, y: 238, route: [{ x: 704, y: 238 }, { x: 842, y: 238 }, { x: 842, y: 320 }, { x: 704, y: 320 }], speed: 90 },
       { x: 735, y: 482, route: [{ x: 704, y: 482 }, { x: 810, y: 482 }, { x: 810, y: 528 }, { x: 704, y: 528 }], speed: 98 },
       { x: 520, y: 458, route: [{ x: 486, y: 458 }, { x: 610, y: 458 }, { x: 610, y: 520 }, { x: 486, y: 520 }], speed: 96 },
-      { x: 842, y: 500, route: [{ x: 828, y: 474 }, { x: 890, y: 474 }, { x: 890, y: 532 }, { x: 828, y: 532 }], speed: 104 }
+      { x: 842, y: 500, route: [{ x: 828, y: 474 }, { x: 890, y: 474 }, { x: 890, y: 532 }, { x: 828, y: 532 }], speed: 104 },
+      { x: 260, y: 352, route: [{ x: 175, y: 352 }, { x: 390, y: 352 }, { x: 390, y: 408 }, { x: 175, y: 408 }], speed: 90 },
+      { x: 850, y: 210, route: [{ x: 770, y: 190 }, { x: 890, y: 190 }, { x: 890, y: 340 }, { x: 770, y: 340 }], speed: 96 }
     ],
     cameras: [
       { x: 230, y: 44, angle: 90, disabled: false },
-      { x: 420, y: 226, angle: 180, disabled: false },
+      { x: 408, y: 226, angle: 180, disabled: false },
       { x: 610, y: 44, angle: 120, disabled: false },
       { x: 680, y: 292, angle: -35, sweepMin: -90, sweepMax: 20, disabled: false },
       { x: 916, y: 430, angle: 155, sweepMin: 100, sweepMax: 210, disabled: false },
@@ -1821,7 +1824,7 @@ class GameScene extends Phaser.Scene {
         cam.sweepDirection = 1;
       }
       cam.sprite.setAngle(cam.sweep);
-      if (this.inCone(cam.x, cam.y, Phaser.Math.DegToRad(cam.sweep), 180, 0.55)) {
+      if (this.inCone(cam.x, cam.y, Phaser.Math.DegToRad(cam.sweep), 180, 0.55, CAMERA_DETECTION_START_OFFSET)) {
         detected = true;
         cctvDetected = true;
       }
@@ -1907,12 +1910,14 @@ class GameScene extends Phaser.Scene {
     this.catchTimer = Math.max(0, this.catchTimer - delta * 2);
   }
 
-  inCone(x, y, angle, range, width) {
+  inCone(x, y, angle, range, width, startOffset = 0) {
     const dist = Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y);
     if (dist > range) return false;
     const angleToPlayer = Phaser.Math.Angle.Between(x, y, this.player.x, this.player.y);
     const diff = Math.abs(Phaser.Math.Angle.Wrap(angleToPlayer - angle));
-    return diff < width && !this.lineBlocked(x, y, this.player.x, this.player.y);
+    const sightX = x + Math.cos(angle) * startOffset;
+    const sightY = y + Math.sin(angle) * startOffset;
+    return diff < width && !this.lineBlocked(sightX, sightY, this.player.x, this.player.y);
   }
 
   lineBlocked(x1, y1, x2, y2) {
