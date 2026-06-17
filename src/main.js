@@ -8,7 +8,7 @@ const RENDER_SCALE = 1;
 const CANVAS_WIDTH = WIDTH;
 const CANVAS_HEIGHT = HEIGHT;
 const TEXT_RESOLUTION = RENDER_SCALE;
-const CCTV_SHUTDOWN_MS = 5000;
+const CCTV_SHUTDOWN_MS = 10000;
 const GUARD_CATCH_FAIL_MS = 1000;
 const GUARD_SIGHT_FAIL_MS = 2000;
 const GUARD_NOTICE_RANGE = 145;
@@ -1573,7 +1573,7 @@ class GameScene extends Phaser.Scene {
       if (!found && computer.active && near(interactionPoint)) {
         const cctvRemaining = Math.max(0, this.cctvShutdownUntil - this.time.now);
         found = {
-          label: cctvRemaining > 0 ? `CCTV OFF ${(cctvRemaining / 1000).toFixed(1)}s` : "Hack CCTV - 5s",
+          label: cctvRemaining > 0 ? `CCTV OFF ${(cctvRemaining / 1000).toFixed(1)}s` : "Hack CCTV - 10s",
           action: () => {
             gameAudio.play("hack");
             this.objectives.hacked = true;
