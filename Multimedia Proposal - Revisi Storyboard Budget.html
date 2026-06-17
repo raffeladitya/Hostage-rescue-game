@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Multimedia Proposal - Revised Storyboard and Budget</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 16mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: #1f2933;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      line-height: 1.35;
+      background: #ffffff;
+    }
+
+    h1,
+    h2 {
+      margin: 0 0 8px;
+      color: #111827;
+      line-height: 1.15;
+    }
+
+    h1 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin-top: 18px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #9ca3af;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin: 8px 0 14px;
+      page-break-inside: auto;
+    }
+
+    tr {
+      page-break-inside: avoid;
+      page-break-after: auto;
+    }
+
+    th,
+    td {
+      border: 1px solid #9ca3af;
+      padding: 6px;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+
+    th {
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .storyboard th:nth-child(1),
+    .storyboard td:nth-child(1),
+    .budget th:nth-child(1),
+    .budget td:nth-child(1),
+    .budget th:nth-child(4),
+    .budget td:nth-child(4) {
+      text-align: center;
+    }
+
+    .storyboard col:nth-child(1) { width: 5%; }
+    .storyboard col:nth-child(2) { width: 15%; }
+    .storyboard col:nth-child(3) { width: 23%; }
+    .storyboard col:nth-child(4) { width: 18%; }
+    .storyboard col:nth-child(5) { width: 22%; }
+    .storyboard col:nth-child(6) { width: 17%; }
+
+    .budget col:nth-child(1) { width: 5%; }
+    .budget col:nth-child(2) { width: 16%; }
+    .budget col:nth-child(3) { width: 27%; }
+    .budget col:nth-child(4) { width: 7%; }
+    .budget col:nth-child(5) { width: 12%; }
+    .budget col:nth-child(6) { width: 12%; }
+    .budget col:nth-child(7) { width: 21%; }
+
+    .total-row td {
+      background: #f3f4f6;
+      font-weight: 700;
+    }
+
+    .note {
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+    }
+  </style>
+</head>
+<body>
+  <h1>Multimedia Proposal - Revised Storyboard and Budget</h1>
+  <p class="subtitle">Replacement draft for Section 8 and Section 10</p>
+
+  <h2>8. Storyboard (Detailed)</h2>
+  <p>The storyboard below explains the flow of the 2D web game <strong>Hostage &amp; Rescue</strong> from the first screen until the level is completed. Each scene includes the visual focus, user action, system response, and multimedia elements needed for development.</p>
+
+  <table class="storyboard">
+    <colgroup>
+      <col><col><col><col><col><col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>No.</th>
+        <th>Scene / Screen</th>
+        <th>Visual Description</th>
+        <th>Player Action</th>
+        <th>System Response</th>
+        <th>Audio / UI Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Opening / Splash Screen</td>
+        <td>The game logo appears with a dark security-room background, blinking CCTV light, and pixel-style title text.</td>
+        <td>Player waits briefly or clicks anywhere to continue.</td>
+        <td>The game loads assets and moves to the main menu after a short transition.</td>
+        <td>Short suspense intro sound; fade-in animation for logo.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Main Menu</td>
+        <td>Main menu shows the title Hostage &amp; Rescue, with Play, Level Select, Settings, and Credits buttons.</td>
+        <td>Player clicks Play to start or chooses another menu option.</td>
+        <td>Play opens the first available level. Level Select opens the level list. Settings opens audio controls.</td>
+        <td>Button hover effect; simple click sound; background loop begins.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Level Select</td>
+        <td>A level map or list displays unlocked and locked levels. Locked stages have a lock icon.</td>
+        <td>Player selects an unlocked level.</td>
+        <td>The selected level loads. Locked levels show a message that the level must be unlocked first.</td>
+        <td>Small warning sound for locked levels; transition to loading screen.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Mission Briefing</td>
+        <td>A short briefing panel explains the mission: infiltrate the area, avoid guards, collect evidence, rescue the hostage, and exit safely.</td>
+        <td>Player reads the mission and clicks Start Mission.</td>
+        <td>The game starts the selected level and places the player at the entry point.</td>
+        <td>Typing or panel slide animation; tense background music.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Gameplay - Infiltration</td>
+        <td>Player character enters the facility. Guards patrol the area, CCTV cameras rotate, and doors block some paths.</td>
+        <td>Player moves with keyboard controls and observes guard patterns.</td>
+        <td>The player can explore the map. If detected, the warning state is triggered.</td>
+        <td>Footstep sound, guard alert cue, camera scanning animation.</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Gameplay - Interaction</td>
+        <td>Interactive objects such as computers, keycards, evidence items, and doors are highlighted when the player is close.</td>
+        <td>Player presses the interaction key to collect evidence, open doors, or hack computers.</td>
+        <td>Collected items are added to inventory. Hacked computers can disable CCTV or unlock a route.</td>
+        <td>Interaction icon appears; short pickup or hacking sound.</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Danger / Detection State</td>
+        <td>If the player enters a guard or CCTV vision area, the screen shows an alert effect and the guard begins to chase.</td>
+        <td>Player must hide, move away, or restart if caught.</td>
+        <td>A warning timer appears. If the player escapes, the alert returns to normal; if caught, the level fails.</td>
+        <td>Alarm sound, red screen border, faster music during chase.</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Hostage Rescue</td>
+        <td>The hostage is located in a locked room. The room contains a rescue point or interactable hostage sprite.</td>
+        <td>Player reaches the hostage and presses the interaction key.</td>
+        <td>The hostage is rescued and follows the player or is marked as rescued. The exit objective becomes active.</td>
+        <td>Rescue confirmation sound; objective checklist updates.</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Exit Objective</td>
+        <td>After rescuing the hostage and collecting required evidence, the exit door is highlighted.</td>
+        <td>Player guides the character to the exit door.</td>
+        <td>If all objectives are complete, the level ends. If not, the game shows which objective is missing.</td>
+        <td>Door unlock sound; objective completion animation.</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>Level Complete</td>
+        <td>A result screen shows score, completion time, evidence collected, detections, and stars or rank.</td>
+        <td>Player clicks Next Level, Replay, or Main Menu.</td>
+        <td>Next Level unlocks the following stage. Replay restarts the same level.</td>
+        <td>Victory sound; score count-up animation.</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Game Over</td>
+        <td>A failed mission screen appears when the player is caught or fails an objective.</td>
+        <td>Player clicks Retry or Main Menu.</td>
+        <td>Retry reloads the level. Main Menu returns to the menu screen.</td>
+        <td>Low suspense sound; retry button highlighted.</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Settings / Credits</td>
+        <td>Settings screen contains volume controls. Credits screen lists team members, tools, and asset sources.</td>
+        <td>Player adjusts audio or returns to the menu.</td>
+        <td>Settings are saved for the current session. Credits can be opened from the main menu.</td>
+        <td>Slider movement sound; clean pixel UI layout.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>10. Budget Calculations</h2>
+  <p>The budget is arranged as an estimated production cost for the game prototype. Prices may change depending on asset availability, licensing choice, and whether some assets are produced by the team.</p>
+
+  <table class="budget">
+    <colgroup>
+      <col><col><col><col><col><col><col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>No.</th>
+        <th>Budget Item</th>
+        <th>Purpose / Description</th>
+        <th>Qty</th>
+        <th>Unit Cost</th>
+        <th>Subtotal</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Aseprite licence</td>
+        <td>Pixel art and sprite creation software for characters, tiles, icons, and animations.</td>
+        <td>1</td>
+        <td>Rp320,000</td>
+        <td>Rp320,000</td>
+        <td>One-time software licence.</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Pixel Art Asset Pack</td>
+        <td>Additional environment tiles, props, guard sprites, UI icons, or visual effects.</td>
+        <td>1</td>
+        <td>Rp150,000</td>
+        <td>Rp150,000</td>
+        <td>Can be reduced if assets are made independently.</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Sound Effect Pack</td>
+        <td>Footsteps, alert alarm, button clicks, item pickup, door unlock, and mission result sounds.</td>
+        <td>1</td>
+        <td>Rp100,000</td>
+        <td>Rp100,000</td>
+        <td>Can be replaced with self-made or free licensed sounds.</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Background Music License</td>
+        <td>Suspense background music for menu, gameplay, chase, and victory screens.</td>
+        <td>1</td>
+        <td>Rp150,000</td>
+        <td>Rp150,000</td>
+        <td>Can be reduced if original music is produced by the team or with AI support.</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Domain / Hosting</td>
+        <td>Temporary web hosting for testing, presentation, and online access to the HTML5 game.</td>
+        <td>1</td>
+        <td>Rp200,000</td>
+        <td>Rp200,000</td>
+        <td>Estimated hosting cost for the prototype period.</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4"></td>
+        <td>Estimated Total</td>
+        <td>Rp920,000</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="note"><strong>Budget note:</strong> The estimated total cost remains Rp920,000. The cost can be reduced if the team creates its own pixel assets, sound effects, or background music, or uses free licensed resources.</p>
+</body>
+</html>
