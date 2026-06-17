@@ -229,9 +229,9 @@ const levels = [
       { x: 230, y: 44, angle: 90, disabled: false },
       { x: 420, y: 226, angle: 180, disabled: false },
       { x: 610, y: 44, angle: 120, disabled: false },
-      { x: 680, y: 292, angle: 0, disabled: false },
-      { x: 916, y: 430, angle: 90, disabled: false },
-      { x: 916, y: 70, angle: 90, disabled: false }
+      { x: 680, y: 292, angle: -35, sweepMin: -90, sweepMax: 20, disabled: false },
+      { x: 916, y: 430, angle: 155, sweepMin: 100, sweepMax: 210, disabled: false },
+      { x: 916, y: 70, angle: 145, sweepMin: 110, sweepMax: 180, disabled: false }
     ],
     walls: [
       [0, 0, 960, 42],
@@ -1253,17 +1253,23 @@ class GameScene extends Phaser.Scene {
       evidence.setData("label", label);
     });
     this.securityCameras = this.level.cameras.map((cam) => {
-      const sprite = this.add.sprite(cam.x + this.playOffsetX, cam.y + this.playOffsetY, "camera").setAngle(cam.angle).setDepth(12);
+      const sweepRange = cam.sweepRange ?? CAMERA_SWEEP_RANGE;
+      const sweepMin = cam.sweepMin ?? cam.angle - sweepRange;
+      const sweepMax = cam.sweepMax ?? cam.angle + sweepRange;
+      const initialSweep = Phaser.Math.Clamp(cam.angle, sweepMin, sweepMax);
+      const sprite = this.add.sprite(cam.x + this.playOffsetX, cam.y + this.playOffsetY, "camera").setAngle(initialSweep).setDepth(12);
       return {
         ...cam,
         x: cam.x + this.playOffsetX,
         y: cam.y + this.playOffsetY,
         sprite,
         baseAngle: cam.angle,
-        sweep: cam.angle,
+        sweep: initialSweep,
         sweepDirection: 1,
-        sweepSpeed: CAMERA_SWEEP_SPEED,
-        sweepRange: CAMERA_SWEEP_RANGE
+        sweepSpeed: cam.sweepSpeed ?? CAMERA_SWEEP_SPEED,
+        sweepRange,
+        sweepMin,
+        sweepMax
       };
     });
   }
@@ -1803,8 +1809,8 @@ class GameScene extends Phaser.Scene {
 
     this.securityCameras.forEach((cam) => {
       if (cam.disabled) return;
-      const minSweep = cam.baseAngle - cam.sweepRange;
-      const maxSweep = cam.baseAngle + cam.sweepRange;
+      const minSweep = cam.sweepMin;
+      const maxSweep = cam.sweepMax;
       cam.sweep += cam.sweepDirection * cam.sweepSpeed * (delta / 1000);
       if (cam.sweep >= maxSweep) {
         cam.sweep = maxSweep;
